@@ -1,25 +1,38 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import axios from 'axios';
+import { useQuery } from 'react-query';
+import { makeServer } from './api/mirage';
+
+interface Repository {
+  full_name: string;
+  description: string;
+}
+
+if (process.env.NODE_ENV) makeServer();
 
 function App() {
+  const { data: repositories, isFetching } = useQuery<Repository[]>(
+    'repos',
+    async () => {
+      const response = await axios.get('https://api.github.com/users/adaobjr/repos');
+      return response.data;
+    },
+    {
+      staleTime: 5000,
+    }
+  );
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ul>
+      {isFetching && <p>Carregando...</p>}
+      {repositories?.map((repo) => {
+        return (
+          <li key={repo.full_name}>
+            <strong>{repo.full_name}</strong>
+            <p>{repo.description}</p>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
