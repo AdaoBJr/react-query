@@ -1,14 +1,10 @@
-import React from 'react';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { makeServer } from './api/mirage';
 
 interface Repository {
   full_name: string;
   description: string;
 }
-
-if (process.env.NODE_ENV) makeServer();
 
 function App() {
   const { data: repositories, isFetching } = useQuery<Repository[]>(
@@ -21,6 +17,7 @@ function App() {
       staleTime: 5000,
     }
   );
+
   return (
     <ul>
       {isFetching && <p>Carregando...</p>}
